@@ -4,7 +4,7 @@ import { type MealDBDish } from "@/lib/services/mealdb"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookmarkPlus } from "lucide-react"
+import { BookmarkPlus, Check } from "lucide-react"
 import Image from "next/image"
 import { addDish } from "@/lib/services/dishes"
 import { useState } from "react"
@@ -34,32 +34,22 @@ export function MealDBCard({ meal, onSaved }: Props) {
   }
 
   return (
-    <Card className="overflow-hidden group relative">
+    <Card className="overflow-hidden group relative rounded-2xl shadow-sm border border-border flex flex-col">
       {/* Image */}
-      <div className="relative h-40 w-full bg-muted">
+      <div className="relative h-44 w-full bg-muted overflow-hidden rounded-t-2xl">
         <Image
           src={meal.strMealThumb}
           alt={meal.strMeal}
           fill
           className="object-cover"
         />
-
-        {/* Bouton sauvegarder au hover */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleSave}
-            disabled={saved || loading}
-          >
-            <BookmarkPlus className="h-4 w-4 mr-1" />
-            {saved ? "Enregistré !" : loading ? "..." : "Enregistrer"}
-          </Button>
-        </div>
       </div>
 
-      <CardContent className="p-3 space-y-2">
-        <p className="font-semibold text-sm truncate">{meal.strMeal}</p>
+      <CardContent className="p-4 space-y-3 flex flex-col flex-1">
+        {/* Nom */}
+        <p className="font-bold text-sm truncate">{meal.strMeal}</p>
+
+        {/* Badges */}
         <div className="flex flex-wrap gap-1">
           {meal.strCategory && (
             <Badge variant="secondary" className="text-xs">
@@ -72,6 +62,27 @@ export function MealDBCard({ meal, onSaved }: Props) {
             </Badge>
           ))}
         </div>
+
+        {/* Bouton ajouter */}
+        <Button
+          size="sm"
+          variant={saved ? "secondary" : "outline"}
+          className="w-full mt-auto"
+          onClick={handleSave}
+          disabled={saved || loading}
+        >
+          {saved ? (
+            <>
+              <Check className="h-4 w-4 mr-2 text-green-500" />
+              Ajouté à ma bibliothèque
+            </>
+          ) : (
+            <>
+              <BookmarkPlus className="h-4 w-4 mr-2" />
+              {loading ? "Ajout en cours..." : "Ajouter à ma bibliothèque"}
+            </>
+          )}
+        </Button>
       </CardContent>
     </Card>
   )

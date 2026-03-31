@@ -16,6 +16,9 @@ export type Dish = {
   tags: string[]
   imageUrl: string
   source: "user" | "mealdb"
+  prepTime?: number
+  difficulty?: "Facile" | "Moyen" | "Difficile" | "Très facile"
+  isFavorite?: boolean
 }
 
 const COLLECTION = "dishes"
