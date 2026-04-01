@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, ListFilter } from "lucide-react";
+import { Search, ListFilter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getDishes, type Dish } from "@/lib/services/dishes";
 import {
@@ -22,29 +22,48 @@ export default function DishesPage() {
   const [userDishes, setUserDishes] = useState<Dish[]>([]);
   const [apiDishes, setApiDishes] = useState<MealDBDish[]>([]);
   const [loading, setLoading] = useState(true);
+  const allDishesRef = useRef<Dish[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function load() {
       setLoading(true);
-      const [dishes, meals] = await Promise.all([
-        getDishes(),
-        getRandomMeals(8),
-      ]);
-      setUserDishes(dishes);
-      setApiDishes(meals);
-      setLoading(false);
+      try {
+        const [dishes, meals] = await Promise.all([
+          getDishes(),
+          getRandomMeals(50),
+        ]);
+        if (!isMounted) return;
+        setUserDishes(dishes);
+        allDishesRef.current = dishes;
+        setApiDishes(meals);
+      } catch (err) {
+        console.error("Erreur lors du chargement :", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     }
+
     load();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Recherche dans les deux sources
   useEffect(() => {
-    if (!query.trim()) return;
     const timeout = setTimeout(async () => {
       const [dishes, meals] = await Promise.all([
         getDishes(),
         searchMeals(query),
       ]);
+      if (!query.trim()) {
+        setUserDishes(allDishesRef.current);
+        setApiDishes(meals);
+        return;
+      }
       setUserDishes(
         dishes.filter((d) =>
           d.name.toLowerCase().includes(query.toLowerCase()),
@@ -106,7 +125,7 @@ export default function DishesPage() {
               <AddDishCard />
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {userDishes.map((dish) => (
                 <DishCard key={dish.id} dish={dish} />
               ))}
@@ -119,7 +138,7 @@ export default function DishesPage() {
           {loading ? (
             <p className="text-muted-foreground text-sm">Chargement...</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {apiDishes.map((meal) => (
                 <MealDBCard key={meal.idMeal} meal={meal} />
               ))}

@@ -9,29 +9,39 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Tag, Clock, Users } from "lucide-react";
+import { Upload, Tag, Clock, Users, Gauge } from "lucide-react";
 import { addDish } from "@/lib/services/dishes";
+
+type Difficulty = "Facile" | "Moyen" | "Difficile" | "Très facile";
+
+type FormState = {
+  name: string;
+  description: string;
+  tags: string;
+  prepTime: string;
+  servings: string;
+  category: string;
+  difficulty: Difficulty | undefined;
+};
 
 export default function NewDishPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    tags: "",
-    prepTime: "",
-    servings: "",
-    category: "",
-    difficulty: "",
-  });
+  const [form, setForm] = useState<FormState>({
+  name: "",
+  description: "",
+  tags: "",
+  prepTime: "",
+  servings: "",
+  category: "",
+  difficulty: undefined,
+});
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -207,9 +217,9 @@ export default function NewDishPage() {
             <div className="space-y-1.5">
               <Label htmlFor="prepTime">Niveau de difficulté</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Gauge className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Select name="difficulty" 
-                onValueChange={(value) => setForm({ ...form, difficulty: value })}>
+               onValueChange={(value) => setForm({ ...form, difficulty: value as Difficulty })}>
                   <SelectTrigger className="w-full max-w-48 pl-9">
                     <SelectValue placeholder="Difficulté..." />
                   </SelectTrigger>

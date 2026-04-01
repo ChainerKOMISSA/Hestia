@@ -16,7 +16,7 @@ export async function searchMeals(query: string): Promise<MealDBDish[]> {
   return data.meals || []
 }
 
-export async function getRandomMeals(count = 10): Promise<MealDBDish[]> {
+export async function getRandomMeals(count = 50): Promise<MealDBDish[]> {
   const promises = Array.from({ length: count }, () =>
     fetch("https://www.themealdb.com/api/json/v1/1/random.php")
       .then((r) => r.json())
